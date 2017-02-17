@@ -9,17 +9,19 @@ This is *very basic* helper application for the polivation feature of Forge of E
 - After aiding all players displays stats of aids made (rough estimate number), found blueprints (precise number) and visited taverns (precise number).
 - Keeps simple stats in the configuration file.
 
-## What needs to be polished
+## What needs to be done
 - The interface is far from ready for prime-time but does the job pretty well 
 - Better handling of the blueprint windows.
 - Better paging the social bar.
 - Speed improvements.
+- Handling the kicked/left/disappeared guildie/neighbor still present in the social bar.
 
 ## How to use
-1. Open the `config.ini` file and change the worlds list. Add or remove if necessary take care to match the `.players` and `.stats` sections too.
-2. Open the application and select the world you're about to polivate.
-3. Switch to the browser containing the opened game ready for action.
-4. Profit!
+1. Open the `config.ini` file and change the worlds list according to your preferences. Add or remove worlds if necessary. Take care to match the prefix of `.players` and `.stats` sections to match the corresponding world key.
+2. Open the application.
+3. Switch to the opened and logged in game and select the world you're about to polivate.
+4. Wait a bit.
+5. Profit!
 
 ## Build
 This is [AutoIt](https://autoitscript.com/ ) application so you won't need Visual Studio.
