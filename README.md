@@ -17,7 +17,8 @@ This is *very basic* helper application for the polivation feature of Forge of E
 - Handling the kicked/left/disappeared guildie/neighbor still present in the social bar.
 
 ## How to use
-1. Open the `config.ini` file and change the worlds list according to your preferences. Add or remove worlds if necessary. Take care to match the prefix of `.players` and `.stats` sections to match the corresponding world key.
+1. Open the `config.ini` file and change the worlds list according to your preferences. Add or remove worlds if necessary. Take care to match the prefix of `.players` and `.stats` sections with the corresponding world key.
+2. Edit the number of players from three tabs of social bar to `.players`.
 2. Open the application.
 3. Switch to the opened and logged in game and select the world you're about to polivate.
 4. Wait a bit.
@@ -28,4 +29,5 @@ This is [AutoIt](https://autoitscript.com/ ) application so you won't need Visua
 
 ## Download
 The [latest binary](https://github.com/StoyanDimitrov/polivator/raw/bin/Polivator.exe) is always available here.
-**Note**: Manually download the `config.ini` from the above.
+
+**Note**: Manually download the `config.ini` from the repo.
