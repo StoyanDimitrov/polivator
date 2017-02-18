@@ -28,3 +28,4 @@ This is [AutoIt](https://autoitscript.com/ ) application so you won't need Visua
 
 ## Download
 The [latest binary](https://github.com/StoyanDimitrov/polivator/raw/bin/Polivator.exe) is always available here.
+**Note**: Manually download the `config.ini` from the above.
