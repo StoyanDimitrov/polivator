@@ -1,28 +1,35 @@
-Opt('MustDeclareVars', 1)
+Opt('MustDeclareVars', True)
 Opt('MouseCoordMode', 2)
 Opt('PixelCoordMode', 2)
 
 #pragma compile(Out, Polivator.exe)
 #pragma compile(Icon, icon.ico)
 
-#include <AutoItConstants.au3>
-#include 'lib\has-color-in-area.au3'
-#include 'lib\wait.au3'
-#include 'lib\social-bar.au3'
-
 #include <Misc.au3>
-If _Singleton('foe-polivator', 1) = 0 Then
+If _Singleton('foe-polivator-gui', 1) = 0 Then
   Exit
 EndIf
 
+#include <GUIConstantsEx.au3>
+#include <GuiStatusBar.au3>
+#include <WindowsConstants.au3>
 
-#cs
-TODO
-  generate the config
-  use [colors] from the config
-  use [positions] from the config
-#ce
+#include 'lib\click.au3'
+#include 'lib\variable-store.au3'
+#include 'lib\wait.au3'
+#include 'lib\has-color-in-area.au3'
+#include 'lib\lightbox.au3'
+#include 'lib\area.au3'
+#include 'lib\config.au3'
+#include 'lib\worlds.au3'
+#include 'lib\social-bar.au3'
+#include 'lib\statusbar.au3'
 
+#include '..\lib\debug.au3'
+
+Func exitApp()
+  Exit
+EndFunc
 
 HotKeySet('{ESC}', exitApp)
 
@@ -31,133 +38,184 @@ main()
 
 
 Func main()
-  Local Const $size = getGeometry()
-  Local Const $world = pickWorld()
-  Local Const $players = IniReadSection(ini(), $world & '.players')
-  Local Const $playersPerPage = 5
-  Local Const $pagesByTab = [ _
-    Ceiling($players[1][1] / $playersPerPage), _
-    Ceiling($players[2][1] / $playersPerPage), _
-    Ceiling($players[3][1] / $playersPerPage) _
-  ]
 
-  Local $playersNumberAll = 0
-  For $x = 0 To UBound($pagesByTab) - 1
-    $playersNumberAll += ($pagesByTab[$x] * $playersPerPage)
+  loadConfiguration()
+
+  Local $worldslist = get('config', 'worlds')
+  Local $settings = get('config', 'settings')
+  Local $worldSettings = get('config', 'world_settings')
+
+  Local $worldsItems[UBound($worldsList)]
+  $worldsItems[0] = UBound($worldsList)
+
+  Local $worldActionsItems[UBound($worldSettings)]
+  $worldActionsItems[0] = UBound($worldSettings)
+
+  Local $acceleratorKeys[UBound($worldsList)][2]
+  $acceleratorKeys[0][0] = UBound($worldsList)
+
+  Local $automator = GUICreate('Polivator', 351, 141)
+  Local $worldsMenu = GUICtrlCreateMenu('&World')
+  Local $actionsMenu = GUICtrlCreateMenu('&Actions')
+  ; $settingsMenu = GUICtrlCreateMenu('&Settings')
+  ; GUICtrlSetState(-1, $GUI_DISABLE)
+  ; $settingsMenu = GUICtrlCreateMenu('&Help')
+  ; GUICtrlSetState(-1, $GUI_DISABLE)
+
+  Local $go = GUICtrlCreateButton('Process world', 8, 8, 85, 25)
+  ; Local $taverns = GUICtrlCreateButton('Process taverns', 100, 8, 85, 25)
+  ; GUICtrlSetState(-1, $GUI_DISABLE)
+  ; TODO disable if $worldActionsItems[4] is 0
+
+  For $worldId = 1 To UBound($worldsList) - 1
+    $worldsItems[$worldId] = GUICtrlCreateMenuItem('&' & $worldsList[$worldId][1] & @TAB & 'Shift+F' & $worldId, $worldsMenu, -1, 1)
+    If $settings[1][1] = $worldsList[$worldId][0] Then
+      GUICtrlSetState(-1, $GUI_CHECKED)
+    EndIf
+
+    $acceleratorKeys[$worldId][0] = '+{F' & $worldId & '}'
+    $acceleratorKeys[$worldId][1] = $worldsItems[$worldId]
   Next
-  Local $playersNumberProcessed = 0
+  GUISetAccelerators($acceleratorKeys)
 
-  socialBarOpen()
-  ProgressOn('Social stuff in progress', 'Aiding in progress', '0/' & $playersNumberAll, 150, $size[1] - 250)
-  For $tabId = 0 To UBound($pagesByTab) - 1
-    socialBarTabChange($tabId)
-    socialBarTabProcess($tabId, $pagesByTab[$tabId], $playersNumberAll, $playersNumberProcessed)
-  Next
-  ProgressOff()
+  $worldActionsItems[1] = GUICtrlCreateMenuItem('Aid &Neighbours', $actionsMenu)
+  $worldActionsItems[2] = GUICtrlCreateMenuItem('Aid &Guildies', $actionsMenu)
+  $worldActionsItems[3] = GUICtrlCreateMenuItem('Aid &Friends', $actionsMenu)
+  $worldActionsItems[4] = GUICtrlCreateMenuItem('Visit Friends &Taverns', $actionsMenu)
+  worldSettingsItemsCheck($worldActionsItems)
 
-  MsgBox(0, 'Polivation Finished', 'Polivations:' & @TAB & aids('get') & @LF & 'Tavern visits:' & @TAB & tavernVisits('get') & @LF & 'Blueprints:' & @TAB & blueprints('get'))
-
-  ; save stats
-  Local Const $stats = IniReadSection(ini(), $world & '.stats')
-  Local $statsUpdated[][2] = [ _
-    [3, ''], _
-    ['aids', $stats[1][1] + aids('get')], _
-    ['blueprints', $stats[2][1] + blueprints('get')], _
-    ['tavernVisits', $stats[3][1] + tavernVisits('get')] _
+  Local $statusTexts[] = [ _
+    getWorldNameSignature(), _
+    getWorldSettingsSignature(), _
+    'Ready' _
   ]
-  IniWriteSection(ini(), $world & '.stats', $statsUpdated)
-  Exit
+  statusbarInit($automator, $statusTexts)
+
+  GUISetState(@SW_SHOW)
+
+  While True
+    Local $msg = GUIGetMsg()
+    Switch $msg
+      Case $GUI_EVENT_CLOSE
+        Exit
+
+      Case $go
+        process()
+
+      ; Case $taverns
+      ;  visitTaverns()
+
+      Case Else
+        ; world
+        For $worldId = 1 To UBound($worldsItems) - 1
+          If $msg <> $worldsItems[$worldId] Then
+            ContinueLoop
+          EndIf
+
+          setWorldId($worldsList[$worldId][0])
+
+          worldSettingsItemsCheck($worldActionsItems)
+          setStatusText(getWorldNameSignature(), 0)
+          setStatusText(getWorldSettingsSignature(), 1)
+        Next
+
+        ; actions
+        For $worldSettingId = 1 To UBound($worldActionsItems) - 1
+          If $msg <> $worldActionsItems[$worldSettingId] Then
+            ContinueLoop
+          EndIf
+
+          $worldSettings[$worldSettingId][1] = BitXOR($worldSettings[$worldSettingId][1], 1)
+          setWorldSettings($worldSettings)
+
+          worldSettingsItemsCheck($worldActionsItems)
+          setStatusText(getWorldSettingsSignature(), 1)
+        Next
+    EndSwitch
+  WEnd
 EndFunc
 
 
-Func ini()
-  Return 'config.ini'
+Func worldSettingsItemsCheck(ByRef $worldActionsItems)
+  Local Const $settings = get('config', 'world_settings')
+
+  For $settingId = 1 To UBound($settings) - 1
+    Local $state = $GUI_UNCHECKED
+    If $settings[$settingId][1] = 1 Then
+      $state = $GUI_CHECKED
+    EndIf
+
+    GUICtrlSetState($worldActionsItems[$settingId], $state)
+  Next
 EndFunc
 
 
-Func getGeometry()
+Func process()
+  setStatusText('Waiting for the game to appear', 2)
+  WinWaitActive('Forge of Empires')
+  setStatusText('Game in focus', 2)
+
+  lightboxInit(getClientArea(0, -88, 5, 6))
+
+  socialBarInit()
+
+  Local $tabs = getTabsToProcess()
+  For $i = 0 To UBound($tabs) - 1
+    socialBarTabChange($tabs[$i])
+    socialBarTabProcess($tabs[$i])
+  Next
+
+  Local Const $worldId = getWorldId()
+  IniWriteSection('config.ini', $worldId & '.stats', get('config', 'world_stats'))
+  setStatusText('Done!', 2)
+EndFunc
+
+
+Func visitTaverns()
+consolewrite(isSocialbarFirstPage() & @lf)
+  ; setStatusText('Waiting for the game to appear', 2)
+
+  ; setStatusText('Game in focus', 2)
+  lightboxInit(getClientArea(0, -88, 5, 6))
+
+  socialBarInit()
+  socialBarTabChange(2)
+EndFunc
+
+
+Func loadConfiguration()
+  set('config', 'worlds', IniReadSection('config.ini', 'worlds'))
+
+  set('config', 'settings', IniReadSection('config.ini', 'settings'))
+
+  Local Const $worldId = getWorldId()
+  set('config', 'world_settings', IniReadSection('config.ini', $worldId & '.settings'))
+  set('config', 'world_stats', IniReadSection('config.ini', $worldId & '.stats'))
+EndFunc
+
+
+Func getBrowserSize()
   Const $browser = WinWaitActive('Forge of Empires')
 
   Return WinGetClientSize($browser)
 EndFunc
 
 
-Func pickWorld()
-  If Not FileExists(ini()) Then
-    MsgBox(0, 'Error', 'Config file not found')
-  EndIf
+Func getTabsToProcess()
+  Local Const $worldSettings = get('config', 'world_settings')
+  Local $tabs = []
+  Local $index = 0
 
-  Const $worlds = IniReadSection(ini(), 'worlds')
+  For $i = 1 To UBound($worldSettings) - 1
+    If $worldSettings[$i][1] = 0 Then
+      ContinueLoop
+    EndIf
 
-  If @error Then
-    MsgBox(0, 'Error', 'Config file not found')
-  EndIf
+    ReDim $tabs[$index + 1]
+    $tabs[$index] = $worldSettings[$i][0]
 
-  Local $worldLegend = ''
-  For $i = 1 To UBound($worlds) - 1
-    $worldLegend &= ($i & ' -> ' & $worlds[$i][1] & @LF)
+    $index += 1
   Next
 
-  Const $world = InputBox('World Selection', 'Choose desired world' & @LF & @LF & $worldLegend, 1)
-
-  If $world > UBound($worlds) - 1 Then
-    pickWorld()
-  EndIf
-
-  Return $worlds[$world][0]
+  Return $tabs
 EndFunc
-
-
-Func blueprints($action)
-  Local Static $count = 0
-
-  Switch $action
-    Case 'set'
-      $count += 1
-
-    Case 'get'
-      Return $count
-  EndSwitch
-EndFunc
-
-
-Func aids($action)
-  Local Static $count = 0
-
-  Switch $action
-    Case 'set'
-      $count += 1
-
-    Case 'get'
-      Return $count
-  EndSwitch
-EndFunc
-
-
-Func tavernVisits($action)
-  Local Static $count = 0
-
-  Switch $action
-    Case 'set'
-      $count += 1
-
-    Case 'get'
-      Return $count
-  EndSwitch
-EndFunc
-
-
-Func click($x, $y)
-  MouseMove($x, $y, 25)
-  MouseClick($MOUSE_CLICK_PRIMARY)
-EndFunc
-
-
-Func exitApp()
-  Exit
-EndFunc
-
-
-While True
-  Sleep(1)
-WEnd
