@@ -17,7 +17,7 @@ This is *very basic* UI helper application for the polivation feature of Forge o
 - Fix and turn on stats collection again.
 
 ## How to use
-1. Open the `config.ini` file and change the worlds list according to your preferences. Add or remove worlds if necessary. Take care to match the prefix of `.players` and `.stats` sections to match the corresponding world key.
+1. Open the `config.ini` file and change the worlds list according to your preferences. Add or remove worlds if necessary. Take care to match the prefix of `.settings` and `.stats` sections to match the corresponding world key.
 2. Open the application
     1. From the World menu select the world about to polivate.
     2. From the Actions menu select the tabs that you want polivated.
