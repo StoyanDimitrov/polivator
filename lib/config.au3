@@ -16,7 +16,7 @@ EndFunc
 
 Func configGetIndexByKey(ByRef $section, $key)
   For $index = 1 To UBound($section) - 1
-    If Not $section[$index][0] = $key Then
+    If Not ($section[$index][0] == $key) Then
       ContinueLoop
     EndIf
 

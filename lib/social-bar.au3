@@ -107,7 +107,7 @@ Func socialBarPageProcess($tabId)
 
   For $i = 0 To UBound($aids) - 1
     Local $area = $aids[$i]
-consolewrite('Aid button ' & $i & @lf)
+; consolewrite('Aid button ' & $i & @lf)
     waitLightboxOff()
 
     ; aid button
@@ -118,11 +118,8 @@ consolewrite('Aid button ' & $i & @lf)
       waitLightboxOn()
 
       ; wait for lightbox to disappear or blueprintCloseButton to appear
-      wait('continueAfterPolivation', 125, $continueAfterPolivationData)
+      wait('continueAfterPolivation', 200, $continueAfterPolivationData)
 
-      waitLightboxOff()
-
-      #cs
       ; blueprint close button
       If hasColorInArea($blueprintCloseButton, 0x792419) Then
         moveAndClick(Floor(($blueprintCloseButton[2] + $blueprintCloseButton[0]) / 2), Floor(($blueprintCloseButton[3] + $blueprintCloseButton[1]) / 2))
@@ -130,9 +127,7 @@ consolewrite('Aid button ' & $i & @lf)
         ; wait button to disappear
         waitNot('hasColorInArea', 25, $continueAfterPolivationData)
       EndIf
-      #ce
     EndIf
-
 
     ; checking for taverns
     If $tabId = 'friends' Then
@@ -155,6 +150,7 @@ consolewrite('Aid button ' & $i & @lf)
       EndIf
     EndIf
   Next
+  set('config', 'world_stats', $stats)
 EndFunc
 
 
@@ -176,29 +172,13 @@ EndFunc
 
 Func continueAfterPolivation(ByRef $area, $color)
   If isLightboxOff() Then
-consolewrite('Lightbox Off' & @lf)
     Return True
   EndIf
 
   If Not hasColorInArea($area, $color) Then
-consolewrite('Blueprint button Missing' & @lf)
     Return False
   EndIf
 
-consolewrite('Blueprint button Found' & @lf)
-  moveAndClick(Floor(($area[2] + $area[0]) / 2), Floor(($area[3] + $area[1]) / 2))
-consolewrite('Blueprint button Clicked' & @lf)
-
-  ; TODO
-  ; configSet($stats, 'blueprints', configGet($stats, 'blueprints') + 1)
-
-  Local Const $continueAfterPolivationData = [ _
-    $area, _
-    $color _
-  ]
-  waitNot('hasColorInArea', 125, $continueAfterPolivationData)
-consolewrite('Blueprint button Disappeared' & @lf)
-  ; waitLightboxOff()
   Return True
 EndFunc
 

@@ -25,7 +25,6 @@ EndIf
 #include 'lib\social-bar.au3'
 #include 'lib\statusbar.au3'
 
-#include '..\lib\debug.au3'
 
 Func exitApp()
   Exit
@@ -55,6 +54,8 @@ Func main()
   $acceleratorKeys[0][0] = UBound($worldsList)
 
   Local $automator = GUICreate('Polivator', 351, 141)
+  GUISetIcon(@ScriptName, 0)
+
   Local $worldsMenu = GUICtrlCreateMenu('&World')
   Local $actionsMenu = GUICtrlCreateMenu('&Actions')
   ; $settingsMenu = GUICtrlCreateMenu('&Settings')
@@ -151,13 +152,14 @@ EndFunc
 
 
 Func process()
-  setStatusText('Waiting for the game to appear', 2)
+  setStatusText('Give focus to the game', 2)
   WinWaitActive('Forge of Empires')
-  setStatusText('Game in focus', 2)
+  setStatusText('Game is in focus', 2)
 
   lightboxInit(getClientArea(0, -88, 5, 6))
 
   socialBarInit()
+  setStatusText('Processing…', 2)
 
   Local $tabs = getTabsToProcess()
   For $i = 0 To UBound($tabs) - 1
