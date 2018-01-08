@@ -7,7 +7,7 @@ This is *very basic* UI helper application that automates the aiding process of 
 - FAST! Implements an algorithm that adapts to system and network loads.
 - Handles multi-monitor workstations (not pretty for now).
 - Prepares and navigates the social bar.
-- Handles the blueprint window (not perfectly for now, still misses sometimes - it turns out very network sensitive and not very well dandled by FoE side).
+- Handles the blueprint window (not perfectly for now, still misses sometimes - it turns out very network sensitive and not very well handled by FoE side).
 - Handles the Friends Tavern visits (mandatory for now).
 - Keeps simple stats in the configuration file.
 - ~~After aiding all players displays stats of aids made (rough estimate number), found blueprints (precise number) and visited taverns (precise number).~~ Turned off for this version
