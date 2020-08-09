@@ -36,4 +36,4 @@ The [latest binary](https://github.com/StoyanDimitrov/polivator/raw/bin/Polivato
 **Note**: Please manually download `config.ini` from the repo.
 
 ## Privacy Policy
-The application works completely off-line and does not collects nor sends personal information. It just moves the cursor of your mouse guided by some patches of color on your screen. The collected stats of aided players, collected blueprints and visited taverns is stored only on your computer. Up to you to safeguard it if you fill that information sensitive.
+The application works completely off-line and does not collects nor sends personal information. It just moves the cursor of your mouse guided by some patches of color on your screen. The collected stats of aided players, collected blueprints and visited taverns is stored only on your computer. Up to you to safeguard it if you feel that information sensitive.
